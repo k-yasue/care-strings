@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ケア申し送りアプリ ワイヤーフレーム v1</title>
+<style>
+  :root{
+    --line:#9aa1a9; --line-dark:#4b5259; --bg:#eef0f2; --paper:#ffffff;
+    --ink:#2b3036; --muted:#7a828b; --note:#1d6fb8; --accent:#d9dde1;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif; background:var(--bg); color:var(--ink); padding:32px 24px;}
+  h1{font-size:20px; margin-bottom:4px;}
+  .sub{color:var(--muted); font-size:13px; margin-bottom:28px;}
+  .frames{display:flex; flex-wrap:wrap; gap:32px; align-items:flex-start;}
+  .frame{width:340px;}
+  .frame h2{font-size:14px; margin-bottom:8px; color:var(--line-dark);}
+  .screen{background:var(--paper); border:2px solid var(--line-dark); border-radius:14px; overflow:hidden; min-height:560px; display:flex; flex-direction:column;}
+  .notes{font-size:12px; color:var(--note); margin-top:8px; line-height:1.7;}
+  .notes b{color:var(--note);}
+
+  /* 共通パーツ */
+  .topbar{display:flex; align-items:center; justify-content:space-between; padding:10px 12px; border-bottom:1.5px solid var(--line);}
+  .topbar .title{font-size:14px; font-weight:bold;}
+  .icon{width:26px; height:26px; border:1.5px solid var(--line); border-radius:50%; display:inline-block; text-align:center; line-height:24px; font-size:12px; color:var(--muted);}
+  .tabs{display:flex; border-bottom:1.5px solid var(--line);}
+  .tab{flex:1; text-align:center; padding:8px 0; font-size:12px; color:var(--muted); border-right:1px dashed var(--accent);}
+  .tab.active{font-weight:bold; color:var(--ink); border-bottom:3px solid var(--line-dark);}
+  .body{flex:1; padding:10px; display:flex; flex-direction:column; gap:8px; overflow:hidden;}
+  .box{border:1.5px solid var(--line); border-radius:8px; padding:8px 10px; font-size:12px; background:var(--paper);}
+  .box .meta{color:var(--muted); font-size:10px; margin-bottom:3px;}
+  .banner{border:1.5px solid var(--line-dark); background:repeating-linear-gradient(45deg,#f6f7f8,#f6f7f8 6px,#ececec 6px,#ececec 12px); border-radius:8px; padding:8px 10px; font-size:12px; font-weight:bold;}
+  .chip{display:inline-block; border:1px solid var(--line); border-radius:999px; font-size:10px; padding:1px 8px; color:var(--muted); margin-right:4px;}
+  .btn{border:1.5px solid var(--line-dark); border-radius:8px; text-align:center; padding:9px; font-size:13px; font-weight:bold;}
+  .btn.ghost{border-style:dashed; color:var(--muted); font-weight:normal;}
+  .fab{position:absolute; right:14px; bottom:70px; width:48px; height:48px; border:2px solid var(--line-dark); border-radius:50%; background:var(--paper); font-size:22px; text-align:center; line-height:44px;}
+  .bottomnav{display:flex; border-top:1.5px solid var(--line);}
+  .bottomnav div{flex:1; text-align:center; font-size:10px; color:var(--muted); padding:8px 0;}
+  .bottomnav div.active{color:var(--ink); font-weight:bold;}
+  .screen{position:relative;}
+  .field{border:1.5px solid var(--line); border-radius:8px; padding:9px 10px; font-size:12px; color:var(--muted);}
+  label{font-size:11px; color:var(--line-dark); font-weight:bold;}
+  .row{display:flex; gap:8px;}
+  .row > *{flex:1;}
+  .avatar{width:34px; height:34px; border:1.5px solid var(--line); border-radius:50%; flex-shrink:0; background:repeating-linear-gradient(45deg,#fff,#fff 4px,#f0f0f0 4px,#f0f0f0 8px);}
+  .list-item{display:flex; gap:8px; align-items:center; border:1.5px solid var(--line); border-radius:8px; padding:8px;}
+  .graph{border:1.5px dashed var(--line); border-radius:8px; height:80px; display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:11px;}
+  .seg{display:flex; border:1.5px solid var(--line); border-radius:8px; overflow:hidden;}
+  .seg div{flex:1; text-align:center; font-size:11px; padding:7px 0; color:var(--muted); border-right:1px solid var(--accent);}
+  .seg div:last-child{border-right:none;}
+  .seg div.on{background:#eceef0; color:var(--ink); font-weight:bold;}
+  .check{font-size:11px; color:var(--muted);}
+</style>
+</head>
+<body>
+<h1>ケア申し送りアプリ ワイヤーフレーム v1</h1>
+<p class="sub">スマホファースト / 6画面 / グレー=実装時に色・実データが入る箇所。青字は設計メモ。</p>
+
+<div class="frames">
+
+  <!-- 1. ログイン -->
+  <div class="frame">
+    <h2>① ログイン</h2>
+    <div class="screen">
+      <div class="body" style="justify-content:center; gap:14px; padding:24px;">
+        <div style="text-align:center; font-weight:bold; font-size:16px;">[アプリロゴ]</div>
+        <div style="text-align:center; color:var(--muted); font-size:11px;">施設内の申し送りをひとつに</div>
+        <label>メールアドレス</label>
+        <div class="field">staff@example.com</div>
+        <label>パスワード</label>
+        <div class="field">••••••••</div>
+        <div class="btn">ログイン</div>
+        <div style="text-align:center; font-size:11px; color:var(--muted);">パスワードを忘れた場合</div>
+        <div class="box" style="border-style:dashed;">
+          <div class="meta">言語 / Language</div>
+          日本語 ▾ (English / ภาษาไทย / Tiếng Việt)
+        </div>
+      </div>
+    </div>
+    <p class="notes"><b>メモ:</b> 職員アカウントは管理者が発行(自由登録なし)。言語設定はログイン画面から変更可能=外国人職員が最初につまずかないように。</p>
+  </div>
+
+  <!-- 2. ホーム -->
+  <div class="frame">
+    <h2>② ホーム(ダッシュボード+タイムライン統合)</h2>
+    <div class="screen">
+      <div class="topbar">
+        <span class="title">ホーム</span>
+        <span><span class="icon">🔔</span> <span class="icon">👤</span></span>
+      </div>
+      <div class="tabs">
+        <div class="tab active">1棟(所属)</div>
+        <div class="tab">2棟</div>
+        <div class="tab">全体</div>
+      </div>
+      <div class="body">
+        <div class="banner">⚠ 重要・未確認 2件 ▾ (確認するまで残る)</div>
+        <div class="box" style="border-style:dashed;">
+          <div class="meta">🤖 AI要約 — 本日の要点</div>
+          山田様の口腔ケア用品が1日1本に変更(家族了承済)。佐藤様は夕食後に微熱、経過観察中。
+        </div>
+        <div class="box">
+          <div class="meta">14:02 ・ 山田様 ・ <span class="chip">口腔ケア</span><span class="chip">重要</span></div>
+          ハミングッドは衛生上の理由で1日1本に変更。※ご家族(息子様)了承済み
+          <div class="check">✔ 確認 12/20人 ・ 既読 18/20人</div>
+        </div>
+        <div class="box">
+          <div class="meta">13:40 ・ 佐藤様 ・ <span class="chip">食事</span></div>
+          夕食は主食5割、副食8割。むせ込みなし。
+          <div class="check">既読 9/20人</div>
+        </div>
+        <div class="box ghost btn">↓ さらに読み込む(無限スクロール)</div>
+      </div>
+      <div class="fab">＋</div>
+      <div class="bottomnav">
+        <div class="active">ホーム</div><div>利用者</div><div>バイタル</div><div>未確認</div>
+      </div>
+    </div>
+    <p class="notes"><b>メモ:</b> タブ初期値=自分の所属棟。重要バナーはタップで展開→各投稿の「確認」ボタンへ。AI要約は当日の重要+新着から生成。＋ボタン=投稿作成へ。</p>
+  </div>
+
+  <!-- 3. 利用者一覧 -->
+  <div class="frame">
+    <h2>③ 利用者一覧</h2>
+    <div class="screen">
+      <div class="topbar"><span class="title">利用者</span><span class="icon">🔍</span></div>
+      <div class="tabs">
+        <div class="tab active">1棟</div><div class="tab">2棟</div><div class="tab">全体</div>
+      </div>
+      <div class="body">
+        <div class="field">🔍 名前・部屋番号で検索</div>
+        <div class="list-item"><div class="avatar"></div><div><b>山田 タロウ</b> 様<br><span class="meta">101号室 ・ 要介護4 ・ ⚠誤嚥注意</span></div></div>
+        <div class="list-item"><div class="avatar"></div><div><b>佐藤 ハナ</b> 様<br><span class="meta">102号室 ・ 要介護5 ・ 本日微熱</span></div></div>
+        <div class="list-item"><div class="avatar"></div><div><b>鈴木 ジロウ</b> 様<br><span class="meta">103号室 ・ 要介護3</span></div></div>
+        <div class="list-item"><div class="avatar"></div><div><b>高橋 ウメ</b> 様<br><span class="meta">105号室 ・ 要介護4 ・ 左半身麻痺</span></div></div>
+      </div>
+      <div class="bottomnav">
+        <div>ホーム</div><div class="active">利用者</div><div>バイタル</div><div>未確認</div>
+      </div>
+    </div>
+    <p class="notes"><b>メモ:</b> 一覧に「今日の注意」を一言表示(直近の重要投稿から)。タップで④利用者詳細へ。</p>
+  </div>
+
+  <!-- 4. 利用者詳細 -->
+  <div class="frame">
+    <h2>④ 利用者詳細</h2>
+    <div class="screen">
+      <div class="topbar"><span class="title">← 山田 タロウ 様</span><span class="icon">✎</span></div>
+      <div class="body">
+        <div class="box">
+          <div class="row" style="align-items:center;">
+            <div class="avatar" style="width:44px;height:44px;flex:none;"></div>
+            <div style="flex:1;">101号室 ・ 1棟 ・ 要介護4<br><span class="meta">注意: 誤嚥リスク / 義歯 / アレルギー: 卵</span></div>
+          </div>
+        </div>
+        <div class="seg">
+          <div class="on">すべて</div><div>食事</div><div>口腔ケア</div><div>健康</div><div>家族連絡</div>
+        </div>
+        <div class="graph">[直近7日のバイタル ミニグラフ]</div>
+        <div class="box">
+          <div class="meta">今日 14:02 ・ <span class="chip">口腔ケア</span><span class="chip">重要</span></div>
+          ハミングッドは1日1本に変更…
+        </div>
+        <div class="box">
+          <div class="meta">昨日 19:10 ・ <span class="chip">食事</span></div>
+          夕食は全量摂取。水分1200ml。
+        </div>
+      </div>
+      <div class="fab">＋</div>
+      <div class="bottomnav">
+        <div>ホーム</div><div class="active">利用者</div><div>バイタル</div><div>未確認</div>
+      </div>
+    </div>
+    <p class="notes"><b>メモ:</b> この人に紐づく投稿だけが時系列で溜まる=個人カルテ的タイムライン。カテゴリで絞り込み。＋=この利用者宛の投稿作成(利用者が選択済みの状態で開く)。</p>
+  </div>
+
+  <!-- 5. 投稿作成 -->
+  <div class="frame">
+    <h2>⑤ 投稿作成</h2>
+    <div class="screen">
+      <div class="topbar"><span class="title">× 申し送りを作成</span><span style="font-size:12px;font-weight:bold;">投稿</span></div>
+      <div class="body">
+        <label>対象</label>
+        <div class="row">
+          <div class="field">利用者: 山田 タロウ 様 ▾</div>
+        </div>
+        <div class="seg"><div class="on">1棟宛</div><div>全体宛</div></div>
+        <label>カテゴリ</label>
+        <div>
+          <span class="chip">食事</span><span class="chip" style="border-color:var(--line-dark);color:var(--ink);font-weight:bold;">口腔ケア</span><span class="chip">排泄</span><span class="chip">健康</span><span class="chip">家族連絡</span><span class="chip">その他</span>
+        </div>
+        <label>本文(テンプレート挿入 ▾)</label>
+        <div class="field" style="height:90px;">ハミングッドは衛生上の理由で1日1本に変更。※ご家族(息子様)了承済み</div>
+        <div class="row">
+          <div class="box ghost btn">📷 写真を追加(自動圧縮)</div>
+        </div>
+        <div class="box" style="border-style:dashed;">
+          <div class="meta">オプション</div>
+          ☑ 重要(全員の確認が必要) &nbsp;&nbsp; ☐ 家族了承済み
+        </div>
+      </div>
+    </div>
+    <p class="notes"><b>メモ:</b> テンプレート=カテゴリごとの定型項目を本文に挿入(入力量の個人差をなくす)。「重要」ONで確認必須+ホームのバナーに載る。写真はアップ前にブラウザ側で圧縮。</p>
+  </div>
+
+  <!-- 6. バイタル入力 -->
+  <div class="frame">
+    <h2>⑥ バイタル入力</h2>
+    <div class="screen">
+      <div class="topbar"><span class="title">× バイタル記録</span><span style="font-size:12px;font-weight:bold;">保存</span></div>
+      <div class="body">
+        <label>利用者</label>
+        <div class="field">山田 タロウ 様 ▾</div>
+        <label>測定日時</label>
+        <div class="field">今日 14:00 ▾</div>
+        <div class="row">
+          <div><label>体温(℃)</label><div class="field">36.8</div></div>
+          <div><label>脈拍(回/分)</label><div class="field">72</div></div>
+        </div>
+        <div class="row">
+          <div><label>血圧(上)</label><div class="field">128</div></div>
+          <div><label>血圧(下)</label><div class="field">76</div></div>
+        </div>
+        <div class="row">
+          <div><label>SpO2(%)</label><div class="field">97</div></div>
+          <div><label></label><div class="field" style="border:none;"></div></div>
+        </div>
+        <div class="box" style="border-style:dashed;">
+          <div class="meta">⚠ 自動チェック</div>
+          基準値を外れた項目は赤く表示+申し送りへの投稿を提案
+        </div>
+        <div class="graph">[この利用者の推移グラフ(保存後に更新)]</div>
+      </div>
+    </div>
+    <p class="notes"><b>メモ:</b> 数値はテンキー入力。異常値(例: 37.5℃以上)は保存時に警告+「申し送りに投稿しますか?」を提案=記録と共有をつなぐ。</p>
+  </div>
+
+</div>
+
+<div style="margin-top:32px; font-size:12px; color:var(--muted); line-height:1.8;">
+  <b style="color:var(--ink);">画面遷移の全体像:</b>
+  ログイン → ホーム(タブ: 1棟/2棟/全体) ⇄ 利用者一覧 → 利用者詳細 / ＋ボタン → 投稿作成 / 下部ナビ → バイタル入力・未確認リスト<br>
+  <b style="color:var(--ink);">未実装画面(次版で追加候補):</b> 未確認リスト画面、投稿詳細(確認ボタン+既読/確認者一覧+翻訳表示)、設定(言語切替)、管理者用職員管理
+</div>
+
+</body>
+</html>
