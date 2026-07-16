@@ -82,7 +82,7 @@ care-strings/
 ## 8. 現在地と次のステップ
 
 - 完了: 設計フェーズ全部 / Node.js・Next.js(App Router, TS)・GitHub環境構築 / **SupabaseプロジェクトにDBスキーマ適用済み(12テーブル稼働中、初期データ投入済み)** / CLAUDE.md整備 / ブランチ運用開始(認証以降はPR方式と合意)
-- **現在: feature/auth ブランチで認証(F-01)実装に着手するところ**。手順: @supabase/supabase-js と @supabase/ssr 導入 → .env.local(URL+anonキー、gitignore確認)→ Supabaseクライアント(utils/supabase/)→ /loginページ → middleware(未ログインは/loginへ)→ ログアウト。**サインアップ画面は作らない**(管理者招待方式)。テストユーザーはダッシュボードのAuthentication→Add user+SQLでprofilesにadmin行を手動作成
+- **現在: feature/auth ブランチで認証(F-01)実装に着手するところ**。手順: @supabase/supabase-js と @supabase/ssr 導入 → .env.local(URL+anonキー、gitignore確認)→ Supabaseクライアント(utils/supabase/)→ /loginページ → proxy.ts(未ログインは/loginへ)→ ログアウト。**サインアップ画面は作らない**(管理者招待方式)。テストユーザーはダッシュボードのAuthentication→Add user+SQLでprofilesにadmin行を手動作成
 - 実装順: 認証(F-01)→ 職員/利用者管理・管理画面(F-02,03,17)→ 投稿・タイムライン(F-04〜07)→ 既読/確認(F-08,09)→ コメント・通知(F-14,15)→ 注意事項(F-16)→ ふりがな(F-11)→ バイタル(F-12,13)→ 公開 → Go+GraphQL移行 → 翻訳/i18n/AI要約/PWA(F-18〜21)
 - 未着手の宿題: 職員ヒアリング(質問リストは docs/requirements.md §9)。「ふりがなと母語翻訳どちらが有用か」「必要な言語」「バイタルの測定頻度」を確認したい。
 
@@ -117,3 +117,6 @@ care-strings/
 - カテゴリ追加候補: **medication(薬)** — ヒアリング後に判断。カテゴリ変更はマイグレーションでCHECK制約を差し替え。posts と resident_notes のカテゴリは将来分岐可(posts側にのみ announcement/instruction 等を追加できる)
 - 投稿の宛先は「利用者」「棟/全体」の2軸のみ。**職員個人宛て(DM)は思想に反するため作らない**(オープン共有が原則。個人に届けたい場合は将来の@メンションで対応)
 - RLSの notifications / post_translations のINSERTはフェーズ1では「ログイン職員なら可」に緩和中(サーバー不在のため)。**フェーズ2のGo移行時にサーバー専用へ締める**(段階的セキュリティ強化として語れる)
+- **Next.js 16 で `middleware` は `proxy` に改名された**(機能は同じ)。ファイルはプロジェクト直下の `proxy.ts`、関数名も `proxy`。世の中のSupabase認証チュートリアルは軒並み `middleware.ts` 表記なので**そのまま真似すると動かない**。根拠はバンドル版ドキュメント `node_modules/next/dist/docs/01-app/01-getting-started/16-proxy.md`
+- 公式は「proxyを認証・セッション管理の本体にするな」と明記。**proxyは門前払い(optimistic check)と セッション延命に限定し、本当の防御はRLSとページ側で行う**(既存の「UI出し分け+RLS 2層防御」方針と一致)
+- Supabaseのキーは新方式。**Publishable key(`sb_publishable_...`)を使用**。旧anonキーに相当し公開前提。環境変数名は `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`。Secret key(`sb_secret_...`)はRLSを無視するのでフェーズ1では絶対に使わない
